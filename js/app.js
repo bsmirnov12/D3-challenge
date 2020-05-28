@@ -31,7 +31,7 @@ const templateBits = {
 // ============
 
 const plotWidth = 960;
-const plotHeight = 800;
+const plotHeight = 640;
 
 const margins = {
     top: 20,
