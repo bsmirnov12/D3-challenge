@@ -84,6 +84,9 @@ var yAxis = null;
 var xScale = null;
 var yScale = null;
 
+// Holds original stroke for the circles value between onMouseover and onMouseout calls
+// Value is defined in d3Style and re-initialized when all circles are created
+var defaultStroke = '#e3e3e3';
 
 /** ********************************
  *            Main part
@@ -209,10 +212,42 @@ function labelClickHandler(newChoice) {
 
 /**
  * Randomly return 0 or function parameter
+ * Used for fancy animation when initializing the plot
  * @param {integer} n - some number
  * @return {integer} - with 50% probability 0 or n
  */
 function rnd(n) { return Math.round(Math.random()) < 0.5 ? 0 : n; }
+
+/**
+ * Mouse-over-circle event handler. Highlights the circle and shows a tooltip
+ * @param {Object} d - single row from the data table
+ * @param {Object} tooltip - tooltip object
+ */
+function onMouseover(d, tooltip) {
+    // Find corresponding circle and highlight its boundary
+    // For this purpose all the circles are id-ed by state abbreviation
+    let circle = chartGroup.select(`circle#${d.abbr}`);
+    circle.style('stroke', 'black');
+
+    // Show the tooltip
+    tooltip.show(d);
+}
+
+/**
+ * Mouse-out-circle event handler. Restores circle's border and hides the tooltip
+ * @param {Object} d - single row from the data table
+ * @param {Object} tooltip - tooltip object
+ */
+function onMouseout(d, tooltip) {
+    // Find corresponding circle and restore its border
+    // For this purpose all the circles are id-ed by state abbreviation
+    let circle = chartGroup.select(`circle#${d.abbr}`);
+    circle.style('stroke', defaultStroke);
+
+    // Hide the tooltip
+    tooltip.hide();
+}
+
 
 /** ********************************
  * Loading data and initialization
@@ -248,9 +283,13 @@ d3.csv("data/data.csv").then((data, error) => {
         .data(table)
         .join("g")
             .attr("transform", d => `translate(${rnd(width)}, ${rnd(height)})`)
-            .html(d => `<circle class="stateCircle" cx="0" cy="0" r="${r}" />
+            .html(d => `<circle id="${d.abbr}" class="stateCircle" cx="0" cy="0" r="${r}" />
                         <text class="stateText" x="0" y="${r*5/12}" opacity="1" text-anchor="middle">${d.abbr}</text>`);
     
+    // Save default stroke color (needed for circle highlighting)
+    let a_circle = movingGroups.select('circle');
+    defaultStroke = a_circle.style('stroke');
+
     // Render circles
     renderCircles();
 
@@ -261,7 +300,7 @@ d3.csv("data/data.csv").then((data, error) => {
         .html(d => `${d.state}<br>${eval(templateBits[xChoice])}<br>${eval(templateBits[yChoice])}`);
 
     chartGroup.call(tooltip);
-    movingGroups.on("mouseover", d => { tooltip.show(d); }).on("mouseout", tooltip.hide);
+    movingGroups.on("mouseover", d => { onMouseover(d, tooltip); }).on("mouseout", d => { onMouseout(d, tooltip); });
 
     // Install label click handlers
     xLabelsGroup.selectAll('text').on('click', labelClickHandler);
