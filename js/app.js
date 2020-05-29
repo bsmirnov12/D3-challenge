@@ -1,3 +1,7 @@
+// JavaScript-challenge
+// UT-TOR-DATA-PT-01-2020-U-C Week 16 Homework
+// (c) Boris Smirnov
+
 /** ********************************
  *           Global Constants
  ********************************** */
@@ -17,7 +21,6 @@ const labels = {
 
 // Tootltip templates
 const templateBits = {
-    state: "`${d.state}`",
     poverty: "`Poverty: ${d.poverty}%`",
     age: "`Age: ${d.age}`",
     income: "`Income: ${d.income}`",
@@ -74,7 +77,7 @@ var yLabelsGroup = chartGroup.append("g")
         .attr("transform", `rotate(-90) translate(${-height / 2}, 0)`);
 
 // Group of circles and internal text
-var circlesGroup = chartGroup.append("g").attr('id', 'circles');
+var circlesGroup = chartGroup.append("g");
 
 // Axes (DOM-nodes in Chart Group)
 var xAxis = null;
@@ -216,7 +219,7 @@ function labelClickHandler(newChoice) {
  * @param {integer} n - some number
  * @return {integer} - with 50% probability 0 or n
  */
-function rnd(n) { return Math.round(Math.random()) < 0.5 ? 0 : n; }
+function rnd(n) { return Math.random() < 0.5 ? 0 : n; }
 
 /**
  * Mouse-over-circle event handler. Highlights the circle and shows a tooltip
@@ -284,7 +287,7 @@ d3.csv("data/data.csv").then((data, error) => {
         .join("g")
             .attr("transform", d => `translate(${rnd(width)}, ${rnd(height)})`)
             .html(d => `<circle id="${d.abbr}" class="stateCircle" cx="0" cy="0" r="${r}" />
-                        <text class="stateText" x="0" y="${r*5/12}" opacity="1" text-anchor="middle">${d.abbr}</text>`);
+                        <text class="stateText" x="0" y="${r*5/12}" text-anchor="middle">${d.abbr}</text>`);
     
     // Save default stroke color (needed for circle highlighting)
     let a_circle = movingGroups.select('circle');
